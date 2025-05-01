@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title> Chat</title>
+</head>
+<body>
+<h2>Chat Room</h2>
+<h1 id = "username"> </h1>
+<div id="chat" style="border:1px solid #ccc; padding:10px; height:200px; overflow-y:auto;"></div>
+<input type="text" id="messageInput" placeholder="Type a message..." />
+<button onclick="sendMessage()">Send</button>
+
+<script>
+    let userid = Math.floor(Math.random() * 10000)
+    let username = "User "  + userid ;
+    document.getElementById("username").innerHTML = username;
+    username += " :";
+
+    const socket = new WebSocket("ws://localhost:8080/socket?userId=" + userid);
+    const chatDiv = document.getElementById("chat");
+
+    socket.onmessage = function(event) {
+        const msg = document.createElement("div");
+        const data = JSON.parse(event.data)
+        msg.textContent = `User ${data.from} : ${data.message}`;
+        chatDiv.appendChild(msg);
+    };
+
+<!--    socket.addEventListener("open", () => {-->
+<!--  const token =  11-->
+<!--  socket.send(JSON.stringify({ type: "auth", token }));-->
+<!--});-->
+
+    function sendMessage() {
+        const input = document.getElementById("messageInput");
+        if (input.value.trim() !== "") {
+            socket.send( JSON.stringify({ "from": userid, to: 12 , message: username + input.value}));
+            input.value = "";
+        }
+    }
+</script>
+</body>
+</html>
